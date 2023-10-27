@@ -1,6 +1,9 @@
 ﻿class Game
 {
-    Vector3d pos = new(1, 10, 0);
+    Vector3d pos = new Vector3d(1, 10, 0);
+    List<Vector3d> snakePositions = new List<Vector3d>();
+    Vector3d snakeTail;
+
     public void Run()
     {
         Init();
@@ -13,6 +16,7 @@
     void Init()
     {
         Console.CursorVisible = false;
+        snakePositions.Add(pos);
     }
     void Update()
     {
@@ -38,12 +42,50 @@
                 {
                     pos.Y--;
                 }
+                if (keyInfo.Key == ConsoleKey.Spacebar)
+                {
+                    snakePositions.Add(new Vector3d(pos.X, pos.Y, pos.Z));
+                    pos.X++;
+                }
             }
+
+            // Add the current snake position to the end of the list
+            snakePositions.Add(new Vector3d(pos.X, pos.Y, pos.Z));
+
+            // Save the first position in the list to SnakeTail
+            snakeTail = snakePositions[0];
+
+            // Remove the first position in the list
+            snakePositions.RemoveAt(0);
         }
+    }
+    void Move()
+    {
+
+    }
+    void AddLenth()
+    {
+
     }
     void Render()
     {
-        Console.SetCursorPosition((int)pos.X, (int)pos.Y);
+        if (snakeTail != null) { RemoveEndOfTail(); }
+        WriteHead();
+    }
+    void RemoveEndOfTail()
+    {
+        Console.SetCursorPosition((int)snakeTail.X, (int)snakeTail.Y);
+        Console.ForegroundColor = ConsoleColor.Black;
+        Write(snakeTail.X, snakeTail.Y);
+    }
+    void WriteHead()
+    {
+        Console.ForegroundColor = ConsoleColor.Green;
+        Write(pos.X, pos.Y);
+    }
+    void Write(double X, double Y)
+    {
+        Console.SetCursorPosition((int)X, (int)Y);
         Console.WriteLine('#');
     }
 }
