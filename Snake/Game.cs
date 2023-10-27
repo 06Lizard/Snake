@@ -13,21 +13,34 @@
         {
             Update();
             Render();
+            Thread.Sleep(50); // Add a small delay to give the console time to update
         }
     }
+
     void Init()
     {
         Console.CursorVisible = false;
+        Console.BufferWidth = Console.WindowWidth;
+        Console.BufferHeight = Console.WindowHeight;
         snakePositions.Add(pos);
     }
+
+
     void Update()
     {
         PlayerInput();
-        if (time / 250 != 0) { Move(); }
-        time = (time + 1) % 250;
-        UpdateLenth();
-        CheckColition();
+
+        // Only move the snake every 250 instances of the update function
+        //if (time % 250 == 0)
+        {
+            Move();
+            time = 0; // Reset the time counter
+        }
+
+        UpdateLength();
+        CheckCollision();
     }
+
     void PlayerInput() // Check for player input
     {
         if (Console.KeyAvailable)
@@ -36,19 +49,19 @@
             {
                 ConsoleKeyInfo keyInfo = Console.ReadKey(intercept: true);
 
-                if (keyInfo.Key == ConsoleKey.A)
+                if (keyInfo.Key == ConsoleKey.A && moveDirection != 0)
                 {
                     moveDirection = 1;
                 }
-                if (keyInfo.Key == ConsoleKey.D)
+                if (keyInfo.Key == ConsoleKey.D && moveDirection != 1)
                 {
                     moveDirection = 0;
                 }
-                if (keyInfo.Key == ConsoleKey.S)
+                if (keyInfo.Key == ConsoleKey.S && moveDirection != 3)
                 {
                     moveDirection = 2;
                 }
-                if (keyInfo.Key == ConsoleKey.W)
+                if (keyInfo.Key == ConsoleKey.W && moveDirection != 2)
                 {
                     moveDirection = 3;
                 }
@@ -65,45 +78,67 @@
         switch (moveDirection)
         {
             case 0: pos.X++; break;
-            case 1: pos.Y--; break;
-            case 2: pos.Z++; break;
-            case 3: pos.Z--; break;
+            case 1: pos.X--; break;
+            case 2: pos.Y++; break;
+            case 3: pos.Y--; break;
         }
     }
-    void UpdateLenth() // Updates the position of the snakes head and removes the last part of the tail. 
+    void UpdateLength()
     {
-        // Add the current snake position to the end of the list 
-        snakePositions.Add(new Vector3d(pos.X, pos.Y, pos.Z));
-
-        // Save the first position in the list to SnakeTail (Saves the position of the last part of the tail so that we can remove the display position of it)
+        // Save the first position in the list to SnakeTail
         snakeTail = snakePositions[0];
 
-        // Remove the first position in the list (this is the last part of the tail witch needs to be removed)
+        // Remove the first position in the list (this is the last part of the tail which needs to be removed)
         snakePositions.RemoveAt(0);
+
+        // Add the current snake position to the end of the list
+        snakePositions.Add(new Vector3d(pos.X, pos.Y, pos.Z));
     }
-    void CheckColition()
+
+    void CheckCollision()
     {
-        //if (snake heads position is the same as any of the snakes other positions in it's list) { Console.Clear(); cw("Game Over"); Console.ReadKey(); }
+        for (int i = 1; i < snakePositions.Count; i++)
+        {
+            if (pos.X == snakePositions[i].X && pos.Y == snakePositions[i].Y)
+            {
+                Console.Clear();
+                Console.WriteLine("Game Over");
+                Console.ReadKey();
+                Environment.Exit(0); // Terminate the application
+            }
+        }
     }
+
     void Render() 
     {
         if (snakeTail != null) { RemoveEndOfTail(); }
         WriteHead();
     }
-    void RemoveEndOfTail() // Removes the last part of the tail
+    void RemoveEndOfTail()
     {
-        Console.SetCursorPosition((int)snakeTail.X, (int)snakeTail.Y);
-        Console.ForegroundColor = ConsoleColor.Black;
-        Write(snakeTail.X, snakeTail.Y);
+        if (snakeTail.X >= 0 && snakeTail.X < Console.WindowWidth && snakeTail.Y >= 0 && snakeTail.Y < Console.WindowHeight)
+        {
+            Console.SetCursorPosition((int)snakeTail.X, (int)snakeTail.Y);
+            Console.ForegroundColor = ConsoleColor.Black;
+            Write(snakeTail.X, snakeTail.Y);
+        }
     }
+
     void WriteHead() // Writes the head
     {
         Console.ForegroundColor = ConsoleColor.Green;
         Write(pos.X, pos.Y);
+        Console.ResetColor(); // Reset console color after writing
     }
+
     void Write(double X, double Y)
     {
-        Console.SetCursorPosition((int)X, (int)Y);
-        Console.WriteLine('#');
+        if (X >= 0 && X < Console.WindowWidth && Y >= 0 && Y < Console.WindowHeight)
+        {
+            Console.SetCursorPosition((int)X, (int)Y);
+            Console.WriteLine('#');
+            Console.ResetColor(); // Reset console color after writing
+        }
     }
+
 }
