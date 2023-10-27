@@ -5,11 +5,17 @@ using System.Threading;
 
 class Game
 {
-    Snake head = new Snake(1, 10);
+    Snake head = new Snake(10, 10);
     List<Snake> snakePositions = new List<Snake>();
     short moveDirection = 0;
-    Apple apple = new Apple(10, 10);
+    Apple apple = new Apple(20, 10);
     private int Score = 0;
+    short BoarderMinX = 1;
+    short BoarderMinY = 2;
+    short BoarderSizeX = 37;
+    short BoarderSizeY = 27;
+    short MiliSeconds = 0;
+    int Seconds = 0;
 
     public void Run()
     {
@@ -19,18 +25,19 @@ class Game
             Update();
             Render();
             Thread.Sleep(200);
+            MiliSeconds += 200;
+            Seconds += MiliSeconds/1000;
+            MiliSeconds %= 1000;
         }
     }
 
     void Init()
     {
-        Console.SetWindowSize(37, 27);
+        //Console.SetWindowSize(37, 27);
         Console.CursorVisible = false;
         Console.BufferWidth = Console.WindowWidth;
         Console.BufferHeight = Console.WindowHeight;
         snakePositions.Add(new Snake(head.X, head.Y));
-        apple.X = 10;
-        apple.Y = 10;
     }
 
     void Update()
@@ -95,7 +102,7 @@ class Game
 
     void Boarder_Collision()
     {
-        if (head.X < 0 || head.X >= Console.WindowWidth || head.Y < 0 || head.Y >= Console.WindowHeight)
+        if (head.X < BoarderMinX || head.X >= (BoarderMinX+BoarderSizeX) || head.Y < BoarderMinY || head.Y >= (BoarderMinY+BoarderSizeY))
         {
             EndGame();
         }
@@ -133,8 +140,8 @@ class Game
 
             do
             {
-                apple.X = randomX.Next(37);
-                apple.Y = randomY.Next(27);
+                apple.X = BoarderMinX + randomX.Next(BoarderSizeX);
+                apple.Y = BoarderMinY + randomY.Next(BoarderSizeY);
             } while (snakePositions.Any(s => s.X == apple.X && s.Y == apple.Y));
         }
     }
@@ -142,9 +149,40 @@ class Game
     void Render()
     {
         Console.Clear();
+        WriteScoreAndTime();
+        WriteBorder();
         WriteHead();
         WriteBody();
         WriteApple();
+    }
+
+    void WriteScoreAndTime()
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine($"Score: {Score}\tTime: {Seconds}:{MiliSeconds}");
+    }
+
+    void WriteBorder()
+    {
+        Console.ForegroundColor = ConsoleColor.Blue;
+
+        // Draw horizontal borders
+        for (int x = BoarderMinX - 1; x <= BoarderMinX + BoarderSizeX; x++)
+        {
+            Console.SetCursorPosition(x, BoarderMinY - 1);
+            Console.Write('#');
+            Console.SetCursorPosition(x, BoarderMinY + BoarderSizeY);
+            Console.Write('#');
+        }
+
+        // Draw vertical borders
+        for (int y = BoarderMinY; y <= BoarderMinY + BoarderSizeY - 1; y++)
+        {
+            Console.SetCursorPosition(BoarderMinX - 1, y);
+            Console.Write('#');
+            Console.SetCursorPosition(BoarderMinX + BoarderSizeX, y);
+            Console.Write('#');
+        }
     }
 
     void WriteHead()
