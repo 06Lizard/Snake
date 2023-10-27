@@ -2,9 +2,7 @@
 {
     Vector3d pos = new Vector3d(1, 10, 0);
     List<Vector3d> snakePositions = new List<Vector3d>();
-    Vector3d snakeTail;
     short moveDirection = 0;
-    int time = 0;
 
     public void Run()
     {
@@ -19,62 +17,57 @@
 
     void Init()
     {
+        // make the conosle 37 times 27 
         Console.CursorVisible = false;
         Console.BufferWidth = Console.WindowWidth;
         Console.BufferHeight = Console.WindowHeight;
         snakePositions.Add(pos);
+        // Spawn a apple at position 10, 10, 0
     }
-
 
     void Update()
     {
         PlayerInput();
-
-        // Only move the snake every 250 instances of the update function
-        //if (time % 250 == 0)
-        {
-            Move();
-            time = 0; // Reset the time counter
-        }
-
-        UpdateLength();
+        Move();
         CheckCollision();
+        EatApple();
     }
 
-    void PlayerInput() // Check for player input
+    void PlayerInput()
     {
         if (Console.KeyAvailable)
         {
-            if (Console.KeyAvailable)
-            {
-                ConsoleKeyInfo keyInfo = Console.ReadKey(intercept: true);
+            ConsoleKeyInfo keyInfo = Console.ReadKey(intercept: true);
 
-                if (keyInfo.Key == ConsoleKey.A && moveDirection != 0)
-                {
-                    moveDirection = 1;
-                }
-                if (keyInfo.Key == ConsoleKey.D && moveDirection != 1)
-                {
-                    moveDirection = 0;
-                }
-                if (keyInfo.Key == ConsoleKey.S && moveDirection != 3)
-                {
-                    moveDirection = 2;
-                }
-                if (keyInfo.Key == ConsoleKey.W && moveDirection != 2)
-                {
-                    moveDirection = 3;
-                }
-                if (keyInfo.Key == ConsoleKey.Spacebar) // Temporary placeholder for eating an apple
-                {
-                    // Add the current snake position to the end of the list to make the snake longer 
+            switch (keyInfo.Key)
+            {
+                case ConsoleKey.A:
+                    if (moveDirection != 0)
+                        moveDirection = 1;
+                    break;
+                case ConsoleKey.D:
+                    if (moveDirection != 1)
+                        moveDirection = 0;
+                    break;
+                case ConsoleKey.S:
+                    if (moveDirection != 3)
+                        moveDirection = 2;
+                    break;
+                case ConsoleKey.W:
+                    if (moveDirection != 2)
+                        moveDirection = 3;
+                    break;
+                case ConsoleKey.Spacebar:
+                    // Add a new segment to the snake's body at the current head position
                     snakePositions.Add(new Vector3d(pos.X, pos.Y, pos.Z));
-                }
+                    break;
             }
         }
     }
-    void Move() // Moves forward
+
+    void Move()
     {
+        // Move the head based on the current direction
         switch (moveDirection)
         {
             case 0: pos.X++; break;
@@ -82,17 +75,15 @@
             case 2: pos.Y++; break;
             case 3: pos.Y--; break;
         }
-    }
-    void UpdateLength()
-    {
-        // Save the first position in the list to SnakeTail
-        snakeTail = snakePositions[0];
 
-        // Remove the first position in the list (this is the last part of the tail which needs to be removed)
-        snakePositions.RemoveAt(0);
+        // Update the positions of the snake's body segments
+        for (int i = snakePositions.Count - 1; i > 0; i--)
+        {
+            snakePositions[i] = snakePositions[i - 1];
+        }
 
-        // Add the current snake position to the end of the list
-        snakePositions.Add(new Vector3d(pos.X, pos.Y, pos.Z));
+        // Set the first segment to the current head position
+        snakePositions[0] = new Vector3d(pos.X, pos.Y, pos.Z);
     }
 
     void CheckCollision()
@@ -104,41 +95,49 @@
                 Console.Clear();
                 Console.WriteLine("Game Over");
                 Console.ReadKey();
-                Environment.Exit(0); // Terminate the application
+                Environment.Exit(0);
             }
         }
     }
-
-    void Render() 
+    void EatApple()
     {
-        if (snakeTail != null) { RemoveEndOfTail(); }
+        //if (snakePositions == ApplePosition)
+        {
+            snakePositions.Add(new Vector3d(pos.X, pos.Y, pos.Z));
+            //Change apple position to a random position within the conole (37 * 27) that isn't on top of the snake's body or head
+        }
+    }
+    void Render()
+    {
+        Console.Clear();
         WriteHead();
-    }
-    void RemoveEndOfTail()
-    {
-        if (snakeTail.X >= 0 && snakeTail.X < Console.WindowWidth && snakeTail.Y >= 0 && snakeTail.Y < Console.WindowHeight)
-        {
-            Console.SetCursorPosition((int)snakeTail.X, (int)snakeTail.Y);
-            Console.ForegroundColor = ConsoleColor.Black;
-            Write(snakeTail.X, snakeTail.Y);
-        }
+        WriteBody();
     }
 
-    void WriteHead() // Writes the head
+    void WriteHead()
     {
+        Console.SetCursorPosition((int)pos.X, (int)pos.Y);
         Console.ForegroundColor = ConsoleColor.Green;
-        Write(pos.X, pos.Y);
-        Console.ResetColor(); // Reset console color after writing
+        Console.WriteLine('#');
+        Console.ResetColor();
     }
 
-    void Write(double X, double Y)
+    void WriteBody()
     {
-        if (X >= 0 && X < Console.WindowWidth && Y >= 0 && Y < Console.WindowHeight)
+        foreach (var segment in snakePositions.Skip(1))
         {
-            Console.SetCursorPosition((int)X, (int)Y);
+            Console.SetCursorPosition((int)segment.X, (int)segment.Y);
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine('#');
-            Console.ResetColor(); // Reset console color after writing
+            Console.ResetColor();
         }
     }
 
+/*    void WriteApple()
+    {
+        Console.SetCursorPosition((int)apple.X, (int)apple.Y);
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine('#');
+        Console.ResetColor();
+    }*/
 }
