@@ -3,6 +3,8 @@
     Vector3d pos = new Vector3d(1, 10, 0);
     List<Vector3d> snakePositions = new List<Vector3d>();
     short moveDirection = 0;
+    Apple apple = new (10, 10);
+
 
     public void Run()
     {
@@ -17,20 +19,20 @@
 
     void Init()
     {
-        // make the conosle 37 times 27 
+        Console.SetWindowSize(37, 27); // set the conosles display to 37*27 size
         Console.CursorVisible = false;
         Console.BufferWidth = Console.WindowWidth;
         Console.BufferHeight = Console.WindowHeight;
         snakePositions.Add(pos);
-        // Spawn a apple at position 10, 10, 0
+        apple.X = 10;
+        apple.Y = 10;
     }
 
     void Update()
     {
         PlayerInput();
         Move();
-        CheckCollision();
-        EatApple();
+        CheckCollisions();
     }
 
     void PlayerInput()
@@ -86,7 +88,23 @@
         snakePositions[0] = new Vector3d(pos.X, pos.Y, pos.Z);
     }
 
-    void CheckCollision()
+    void CheckCollisions()
+    {
+        Boarder_Collision();
+        Body_Collision();
+        EatApple_Collision();
+    }
+    void Boarder_Collision()
+    {
+        if (pos.X < 0 || pos.X >= Console.WindowWidth || pos.Y < 0 || pos.Y >= Console.WindowHeight)
+        {
+            Console.Clear();
+            Console.WriteLine("Game Over");
+            Console.ReadKey();
+            Environment.Exit(0);
+        }
+    }
+    void Body_Collision()
     {
         for (int i = 1; i < snakePositions.Count; i++)
         {
@@ -99,19 +117,32 @@
             }
         }
     }
-    void EatApple()
+    void EatApple_Collision()
     {
-        //if (snakePositions == ApplePosition)
+        if (pos.X == apple.X && pos.Y == apple.Y)
         {
-            snakePositions.Add(new Vector3d(pos.X, pos.Y, pos.Z));
-            //Change apple position to a random position within the conole (37 * 27) that isn't on top of the snake's body or head
+            snakePositions.Add(new Vector3d(pos.X, pos.Y, pos.Z)); // adds to the length of the snake
+
+            // Change apple position to a random position within the console (37 * 27)
+            // that isn't on top of the snake's body or head
+
+            Random randomX = new Random();
+            Random randomY = new Random();
+
+            do
+            {
+                apple.X = randomX.Next(37);
+                apple.Y = randomY.Next(27);
+            } while (snakePositions.Any(s => s.X == apple.X && s.Y == apple.Y));
         }
     }
+
     void Render()
     {
         Console.Clear();
         WriteHead();
         WriteBody();
+        WriteApple();
     }
 
     void WriteHead()
@@ -133,11 +164,11 @@
         }
     }
 
-/*    void WriteApple()
+    void WriteApple()
     {
         Console.SetCursorPosition((int)apple.X, (int)apple.Y);
-        Console.ForegroundColor = ConsoleColor.Green;
+        Console.ForegroundColor = ConsoleColor.Red;
         Console.WriteLine('#');
         Console.ResetColor();
-    }*/
+    }
 }
