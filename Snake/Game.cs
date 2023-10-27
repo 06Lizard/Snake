@@ -9,6 +9,7 @@ class Game
     List<Snake> snakePositions = new List<Snake>();
     short moveDirection = 0;
     Apple apple = new Apple(10, 10);
+    private int Score = 0;
 
     public void Run()
     {
@@ -96,10 +97,7 @@ class Game
     {
         if (head.X < 0 || head.X >= Console.WindowWidth || head.Y < 0 || head.Y >= Console.WindowHeight)
         {
-            Console.Clear();
-            Console.WriteLine("Game Over");
-            Console.ReadKey();
-            Environment.Exit(0);
+            EndGame();
         }
     }
 
@@ -109,12 +107,17 @@ class Game
         {
             if (head.X == snakePositions[i].X && head.Y == snakePositions[i].Y)
             {
-                Console.Clear();
-                Console.WriteLine("Game Over");
-                Console.ReadKey();
-                Environment.Exit(0);
+                EndGame();
             }
         }
+    }
+
+    void EndGame()
+    {
+        Console.Clear();
+        Console.WriteLine($"Game Over\nScore: {Score}");
+        Console.ReadKey();
+        Environment.Exit(0);
     }
 
     void EatApple_Collision()
@@ -122,6 +125,8 @@ class Game
         if (head.X == apple.X && head.Y == apple.Y)
         {
             snakePositions.Add(new Snake(head.X, head.Y));
+
+            Score++;
 
             Random randomX = new Random();
             Random randomY = new Random();
