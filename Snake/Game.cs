@@ -63,9 +63,6 @@ class Game
                     if (moveDirection != 2)
                         moveDirection = 3;
                     break;
-                case ConsoleKey.Spacebar:
-                    snakePositions.Add(new Snake(head.X, head.Y));
-                    break;
             }
         }
     }
