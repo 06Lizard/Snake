@@ -117,7 +117,7 @@
     void EndGame()
     {
         Console.Clear();
-        Console.WriteLine($"Game Over\nScore: {Score}");
+        Console.WriteLine($"Game Over\nScore: {Score}\nTime: {Seconds}:{MiliSeconds}");
         Console.ReadKey();
         Environment.Exit(0);
     }
