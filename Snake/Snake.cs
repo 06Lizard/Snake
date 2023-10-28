@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-
-class Snake
+﻿class Snake
 {
     public int X { get; set; }
     public int Y { get; set; }
