@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-
-class Game
+﻿class Game
 {
     Snake head = new Snake(10, 10);
     List<Snake> snakePositions = new List<Snake>();
@@ -158,6 +153,7 @@ class Game
 
     void WriteScoreAndTime()
     {
+        Console.SetCursorPosition(0, 0);
         Console.ForegroundColor = ConsoleColor.Red;
         Console.WriteLine($"Score: {Score}\tTime: {Seconds}:{MiliSeconds}");
     }
